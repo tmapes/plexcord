@@ -1,8 +1,9 @@
+from datetime import datetime, timezone
+from time import sleep
+
 from plexapi.server import PlexServer
 from plexapi.video import Episode
 from pypresence import Presence, InvalidPipe
-from time import sleep
-from datetime import datetime, timezone
 
 
 def get_plex_stream_details(plex_url, plex_token) -> dict:
