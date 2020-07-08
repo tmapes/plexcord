@@ -1,5 +1,5 @@
 plex:
-  server_address: "10.0.0.171:32400"
+  server_address: "http://10.0.0.171:32400"
   user_token: "123"
 discord:
   client_id: "123"

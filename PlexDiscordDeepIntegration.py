@@ -1,12 +1,15 @@
 from datetime import datetime, timezone
 from time import sleep
 
+import yaml
 from plexapi.server import PlexServer
 from plexapi.video import Episode
 from pypresence import Presence, InvalidPipe
 
+from app_config import AppConfig
 
-def get_plex_stream_details(plex_url, plex_token) -> dict:
+
+def get_plex_stream_details(plex_url: str, plex_token: str) -> dict:
     p_server = PlexServer(baseurl=plex_url, token=plex_token)
     if not p_server.sessions():
         print("No Streaming Sessions, Exiting....")
@@ -27,8 +30,8 @@ def get_plex_stream_details(plex_url, plex_token) -> dict:
     }
 
 
-def main(plex_url, plex_token, discord_client_id):
-    presence_client = Presence(discord_client_id, pipe=0)
+def main(app_config: AppConfig):
+    presence_client = Presence(app_config.discord_client_id, pipe=0)
     try:
         presence_client.connect()
     except InvalidPipe as e:
@@ -37,7 +40,7 @@ def main(plex_url, plex_token, discord_client_id):
 
     while True:
         try:
-            stream_details = get_plex_stream_details(plex_url, plex_token)
+            stream_details = get_plex_stream_details(app_config.plex_server_address, app_config.plex_user_token)
             detail_string = f'{stream_details.get("show_name")} {stream_details.get("episode_number")} '
             state_string = f'{stream_details.get("episode_title")}'
             if stream_details:
@@ -61,4 +64,12 @@ def main(plex_url, plex_token, discord_client_id):
 
 
 if __name__ == '__main__':
-    main(plex_url, plex_token, discord_client_id)
+    with open(r'config.yaml') as config:
+        raw_config = yaml.load(config, Loader=yaml.FullLoader)
+        parsed_config = AppConfig(
+            plex_server_address=raw_config.get("plex", {}).get("server_address", "http://localhost:32400"),
+            plex_user_token=raw_config.get("plex", {}).get("user_token", "aabbccdd"),
+            discord_client_id=raw_config.get("discord", {}).get("client_id", "aabbccdd"),
+            discord_process_id=raw_config.get("discord", {}).get("process_id", 11223344),
+        )
+        main(parsed_config)
