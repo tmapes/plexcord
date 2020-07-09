@@ -1,33 +1,10 @@
-from datetime import datetime, timezone
 from time import sleep
 
 import yaml
-from plexapi.server import PlexServer
-from plexapi.video import Episode
 from pypresence import Presence, InvalidPipe
 
+import plex_client as plex
 from app_config import AppConfig
-
-
-def get_plex_stream_details(plex_url: str, plex_token: str) -> dict:
-    p_server = PlexServer(baseurl=plex_url, token=plex_token)
-    if not p_server.sessions():
-        print("No Streaming Sessions, Exiting....")
-        return {}
-    current_session = p_server.sessions()[0]
-    if not isinstance(current_session, Episode):
-        print("Invalid Media Stream Found, Exiting....")
-        return {}
-    show_name = current_session.grandparentTitle
-    episode_name = current_session.title
-    episode_number = current_session.seasonEpisode.upper()
-    start_time = int(datetime.now(tz=timezone.utc).timestamp()) - (current_session.viewOffset / 1000)
-    return {
-        "show_name": show_name,
-        "episode_title": episode_name,
-        "episode_number": episode_number,
-        "start_time": start_time
-    }
 
 
 def main(app_config: AppConfig):
@@ -40,17 +17,17 @@ def main(app_config: AppConfig):
 
     while True:
         try:
-            stream_details = get_plex_stream_details(app_config.plex_server_address, app_config.plex_user_token)
-            detail_string = f'{stream_details.get("show_name")} {stream_details.get("episode_number")} '
-            state_string = f'{stream_details.get("episode_title")}'
+            stream_details = plex.get_plex_stream_details(app_config.plex_server_address, app_config.plex_user_token)
+            detail_string = f'{stream_details.show_name} {stream_details.episode_number} '
+            state_string = f'{stream_details.episode_name}'
             if stream_details:
                 presence_client.update(
-                    pid=420690,
+                    pid=app_config.discord_process_id,
                     state=state_string,
                     details=detail_string,
                     large_image="logo",
                     large_text="Plex",
-                    start=stream_details.get("start_time")
+                    start=stream_details.start_time
                 )
             else:
                 print('Clearing Presence as no Plex stream was found')
