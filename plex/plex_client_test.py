@@ -5,7 +5,7 @@ from unittest.mock import patch
 from freezegun import freeze_time
 from plexapi.video import Episode, Movie
 
-from plex_client import PlexStream, get_plex_stream_details
+from plex.plex_client import PlexStream, get_plex_stream_details
 
 
 class PlexClientTest(TestCase):

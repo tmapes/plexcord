@@ -12,6 +12,7 @@ class PlexStream:
     episode_number: str
     movie_name: str
     start_time: int
+    time_left: int
     is_tv_stream: bool
 
 
@@ -29,11 +30,16 @@ def get_plex_stream_details(plex_url: str, plex_token: str) -> PlexStream:
     is_tv_stream = isinstance(current_session, Episode)
     now = datetime.now()
     start_time = int(now.timestamp()) - (current_session.viewOffset / 1000)
+    time_left = 0
     show_name = ""
     episode_name = ""
     episode_number = ""
     movie_name = ""
     if is_tv_stream:
+        time_left = now.timestamp() - ((current_session.duration - current_session.viewOffset) / 1000)
+        time_left = time_left * 1000 + 1
+        print(f'start_time : {start_time}')
+        print(f'time_left  : {time_left}')
         show_name = current_session.grandparentTitle
         episode_name = current_session.title
         episode_number = current_session.seasonEpisode.upper()
@@ -46,5 +52,6 @@ def get_plex_stream_details(plex_url: str, plex_token: str) -> PlexStream:
         episode_number=episode_number,
         is_tv_stream=is_tv_stream,
         start_time=start_time,
+        time_left=time_left,
         movie_name=movie_name
     )
