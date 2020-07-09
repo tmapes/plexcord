@@ -6,3 +6,4 @@ pypresence==4.0.0
 requests==2.24.0
 urllib3==1.25.9
 pyyaml==5.3.1
+freezegun==0.3.15
