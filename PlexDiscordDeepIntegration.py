@@ -3,7 +3,7 @@ from time import sleep
 import yaml
 from pypresence import Presence, InvalidPipe
 
-import plex_client as plex
+from plex import plex_client as plex
 from app_config import AppConfig
 
 
@@ -11,13 +11,16 @@ def main(app_config: AppConfig):
     presence_client = Presence(app_config.discord_client_id, pipe=0)
     try:
         presence_client.connect()
+        presence_client.clear(app_config.discord_process_id)
     except InvalidPipe as e:
         print(e)
         exit(-1)
 
     while True:
         try:
+            print('Getting New Stream Details')
             stream_details = plex.get_plex_stream_details(app_config.plex_server_address, app_config.plex_user_token)
+            print(stream_details)
             detail_string = f'{stream_details.show_name} {stream_details.episode_number} '
             state_string = f'{stream_details.episode_name}'
             if stream_details:
@@ -27,7 +30,7 @@ def main(app_config: AppConfig):
                     details=detail_string,
                     large_image="logo",
                     large_text="Plex",
-                    start=stream_details.start_time
+                    end=stream_details.time_left
                 )
             else:
                 print('Clearing Presence as no Plex stream was found')
