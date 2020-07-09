@@ -57,7 +57,7 @@ class PlexClientTest(TestCase):
             episode._seasonNumber = 1
             episode.index = 1
             episode.title = "Pilot"
-            episode.viewOffset = 1000 * 60 * 60 * 24
+            episode.viewOffset = 1000 * 60 * 60 * 24  # 24 hours
             mock_plex_server.sessions.return_value = [episode]
 
             output = get_plex_stream_details(plex_url=self.plex_url, plex_token=self.plex_token)
@@ -81,7 +81,7 @@ class PlexClientTest(TestCase):
             MockPlexServer.return_value = mock_plex_server
             movie = Movie(mock_plex_server, None)
             movie.originalTitle = "Rick & Morty the Movie"
-            movie.viewOffset = 1000 * 60 * 60 * 24
+            movie.viewOffset = 1000 * 60 * 60 * 24  # 24 Hours
             mock_plex_server.sessions.return_value = [movie]
 
             output = get_plex_stream_details(plex_url=self.plex_url, plex_token=self.plex_token)
