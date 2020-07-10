@@ -3,8 +3,8 @@ from time import sleep
 import yaml
 from pypresence import Presence, InvalidPipe
 
-from plex import PlexConnection
 from app_config import AppConfig
+from plex import PlexConnection, StreamsNotFoundException, InvalidStreamException
 
 
 def main(app_config: AppConfig):
@@ -21,22 +21,36 @@ def main(app_config: AppConfig):
         try:
             print('Getting New Stream Details')
             stream_details = plex_client.get_plex_stream_details()
-            print(stream_details)
-            detail_string = f'{stream_details.show_name} {stream_details.episode_number} '
-            state_string = f'{stream_details.episode_name}'
             if stream_details:
-                presence_client.update(
-                    pid=app_config.discord_process_id,
-                    state=state_string,
-                    details=detail_string,
-                    large_image="logo",
-                    large_text="Plex",
-                    end=stream_details.time_left
-                )
+                if stream_details.is_tv_stream:
+                    presence_client.update(
+                        pid=app_config.discord_process_id,
+                        details=f'{stream_details.show_name} {stream_details.episode_number} ',
+                        state=stream_details.episode_name,
+                        large_image="logo",
+                        large_text="Plex",
+                        end=stream_details.time_left
+                    )
+                else:
+                    presence_client.update(
+                        pid=app_config.discord_process_id,
+                        details=f'{stream_details.movie_name} ({stream_details.year})',
+                        state=stream_details.director,
+                        large_image="logo",
+                        large_text="Plex",
+                        end=stream_details.time_left
+                    )
             else:
                 print('Clearing Presence as no Plex stream was found')
                 presence_client.clear(pid=420690)
             sleep(10)
+        except StreamsNotFoundException as e:
+            print(f'No streams found, sleeping ten seconds {e}')
+            presence_client.clear(app_config.discord_process_id)
+            sleep(10)
+        except InvalidStreamException as e:
+            print(f'Invalid stream found, sleeping sixty seconds {e}')
+            sleep(60)
         except BaseException as e:
             print(e)
             break
