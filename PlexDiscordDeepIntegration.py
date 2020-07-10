@@ -3,11 +3,12 @@ from time import sleep
 import yaml
 from pypresence import Presence, InvalidPipe
 
-from plex import plex_client as plex
+from plex import PlexConnection
 from app_config import AppConfig
 
 
 def main(app_config: AppConfig):
+    plex_client = PlexConnection(url=app_config.plex_server_address, token=app_config.plex_user_token)
     presence_client = Presence(app_config.discord_client_id, pipe=0)
     try:
         presence_client.connect()
@@ -19,7 +20,7 @@ def main(app_config: AppConfig):
     while True:
         try:
             print('Getting New Stream Details')
-            stream_details = plex.get_plex_stream_details(app_config.plex_server_address, app_config.plex_user_token)
+            stream_details = plex_client.get_plex_stream_details()
             print(stream_details)
             detail_string = f'{stream_details.show_name} {stream_details.episode_number} '
             state_string = f'{stream_details.episode_name}'
