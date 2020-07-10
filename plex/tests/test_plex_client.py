@@ -3,6 +3,7 @@ from unittest import TestCase
 from unittest.mock import patch
 
 from freezegun import freeze_time
+from plexapi.media import Director
 from plexapi.video import Episode, Movie
 
 from plex import PlexStream, PlexConnection
@@ -48,7 +49,7 @@ class PlexClientTest(TestCase):
         start_time = datetime(year=2020, month=1, day=1, minute=1)
         expected_plex_stream = PlexStream(movie_name="", show_name="Rick & Morty", is_tv_stream=True,
                                           episode_number="S01E01", episode_name="Pilot",
-                                          time_left=int(start_time.timestamp()))
+                                          time_left=int(start_time.timestamp()), year=2020, director="")
 
         with patch('plexapi.server.PlexServer.__new__') as MockPlexServer:
             MockPlexServer.return_value = mock_plex_server
@@ -59,6 +60,7 @@ class PlexClientTest(TestCase):
             episode.title = "Pilot"
             episode.viewOffset = 0
             episode.duration = 1000 * 60  # 1 Minute
+            episode.year = 2020
             mock_plex_server.sessions.return_value = [episode]
 
             output = self.plex.get_plex_stream_details()
@@ -78,7 +80,7 @@ class PlexClientTest(TestCase):
         start_time = datetime(year=2020, month=1, day=1, minute=1)
         expected_plex_stream = PlexStream(movie_name="", show_name="Rick & Morty", is_tv_stream=True,
                                           episode_number="S01E01", episode_name="Pilot Pilot Pilot Pilo...",
-                                          time_left=int(start_time.timestamp()))
+                                          time_left=int(start_time.timestamp()), year=2020, director="")
 
         with patch('plexapi.server.PlexServer.__new__') as MockPlexServer:
             MockPlexServer.return_value = mock_plex_server
@@ -89,6 +91,7 @@ class PlexClientTest(TestCase):
             episode.title = "Pilot Pilot Pilot Pilot Pilot"
             episode.viewOffset = 0
             episode.duration = 1000 * 60  # 1 Minute
+            episode.year = 2020
             mock_plex_server.sessions.return_value = [episode]
 
             output = self.plex.get_plex_stream_details()
@@ -111,14 +114,20 @@ class PlexClientTest(TestCase):
                                           is_tv_stream=False,
                                           episode_number="",
                                           episode_name="",
-                                          time_left=int(start_time.timestamp()))
+                                          time_left=int(start_time.timestamp()),
+                                          year=2020,
+                                          director="Dan Harmon")
 
         with patch('plexapi.server.PlexServer.__new__') as MockPlexServer:
             MockPlexServer.return_value = mock_plex_server
+            director = Director(mock_plex_server, None)
+            director.tag = "Dan Harmon"
             movie = Movie(mock_plex_server, None)
-            movie.originalTitle = "Rick & Morty the Movie"
+            movie.title = "Rick & Morty the Movie"
             movie.viewOffset = 0
             movie.duration = 1000 * 60
+            movie.year = 2020
+            movie.directors = [director]
             mock_plex_server.sessions.return_value = [movie]
 
             output = self.plex.get_plex_stream_details()

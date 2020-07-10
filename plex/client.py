@@ -41,6 +41,8 @@ class PlexConnection(object):
         episode_name = ""
         episode_number = ""
         movie_name = ""
+        director = ""
+        year = current_session.year
         time_left = now.timestamp() + ((current_session.duration - current_session.viewOffset) / 1000)
         if is_tv_stream:
             show_name = current_session.grandparentTitle
@@ -49,7 +51,9 @@ class PlexConnection(object):
                 episode_name = f"{current_session.title[0:self.MAXIMUM_TITLE_LENGTH]}..."
             episode_number = current_session.seasonEpisode.upper()
         else:
-            movie_name = current_session.originalTitle
+            movie_name = current_session.title
+            if len(current_session.directors):
+                director = current_session.directors[0].tag
 
         return PlexStream(
             show_name=show_name,
@@ -57,5 +61,7 @@ class PlexConnection(object):
             episode_number=episode_number,
             is_tv_stream=is_tv_stream,
             time_left=time_left,
-            movie_name=movie_name
+            year=year,
+            movie_name=movie_name,
+            director=director
         )
