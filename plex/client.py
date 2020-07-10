@@ -4,6 +4,7 @@ from plexapi.server import PlexServer
 from plexapi.video import Episode, Movie
 
 from plex.stream import PlexStream
+from plex.exceptions import InvalidStreamException, StreamsNotFoundException
 
 
 class PlexConnection(object):
@@ -29,11 +30,11 @@ class PlexConnection(object):
 
         if not self.p_server.sessions():
             print("No Streaming Sessions, Exiting....")
-            raise BaseException("No Streaming Sessions Active")
+            raise StreamsNotFoundException("No Streaming Sessions Active")
         current_session = self.p_server.sessions()[0]
         if not isinstance(current_session, Episode) and not isinstance(current_session, Movie):
             print("Invalid Media Stream Found, Exiting....")
-            raise BaseException("Invalid Media Stream Found")
+            raise InvalidStreamException("Invalid Media Stream Found")
 
         is_tv_stream = isinstance(current_session, Episode)
         now = datetime.now()

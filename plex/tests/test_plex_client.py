@@ -6,7 +6,7 @@ from freezegun import freeze_time
 from plexapi.media import Director
 from plexapi.video import Episode, Movie
 
-from plex import PlexStream, PlexConnection
+from plex import PlexStream, PlexConnection, StreamsNotFoundException, InvalidStreamException
 
 
 class PlexClientTest(TestCase):
@@ -24,7 +24,7 @@ class PlexClientTest(TestCase):
             try:
                 self.plex.get_plex_stream_details()
                 self.fail("Expected Exception to be thrown")
-            except BaseException as ex:
+            except StreamsNotFoundException as ex:
                 self.assertEqual("No Streaming Sessions Active", str(ex))
             MockPlexServer.assert_called_once()
             mock_plex_server.sessions.assert_called_once()
@@ -38,7 +38,7 @@ class PlexClientTest(TestCase):
             try:
                 self.plex.get_plex_stream_details()
                 self.fail("Expected Exception to be thrown")
-            except BaseException as ex:
+            except InvalidStreamException as ex:
                 self.assertEqual("Invalid Media Stream Found", str(ex))
             MockPlexServer.assert_called_once()
             self.assertEqual(2, mock_plex_server.sessions.call_count)
