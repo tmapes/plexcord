@@ -42,15 +42,15 @@ def main(app_config: AppConfig):
                     )
             else:
                 print('Clearing Presence as no Plex stream was found')
-                presence_client.clear(pid=420690)
-            sleep(10)
+                presence_client.clear(pid=app_config.discord_process_id)
+            sleep(app_config.plex_poll_time)
         except StreamsNotFoundException as e:
             print(f'No streams found, sleeping ten seconds {e}')
             presence_client.clear(app_config.discord_process_id)
-            sleep(10)
+            sleep(app_config.plex_poll_time)
         except InvalidStreamException as e:
             print(f'Invalid stream found, sleeping sixty seconds {e}')
-            sleep(60)
+            sleep(app_config.plex_poll_time)
         except BaseException as e:
             print(e)
             break
@@ -64,6 +64,7 @@ if __name__ == '__main__':
         parsed_config = AppConfig(
             plex_server_address=raw_config.get("plex", {}).get("server_address", "http://localhost:32400"),
             plex_user_token=raw_config.get("plex", {}).get("user_token", "aabbccdd"),
+            plex_poll_time=raw_config.get("plex", {}).get("poll_time", 60),
             discord_client_id=raw_config.get("discord", {}).get("client_id", "aabbccdd"),
             discord_process_id=raw_config.get("discord", {}).get("process_id", 11223344),
         )

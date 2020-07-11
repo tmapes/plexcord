@@ -1,6 +1,7 @@
 plex:
   server_address: "http://10.0.0.171:32400"
   user_token: "123"
+  plex_poll_time: 60 # Seconds to poll Plex for stream status
 discord:
   client_id: "123"
   process_id: 112233
