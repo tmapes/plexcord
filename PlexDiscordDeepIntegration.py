@@ -1,7 +1,7 @@
 from time import sleep
 
 import yaml
-from pypresence import Presence, InvalidPipe
+from pypresence import Presence, InvalidPipe, ServerError
 
 from app_config import AppConfig
 from plex import PlexConnection, StreamsNotFoundException, InvalidStreamException
@@ -45,13 +45,18 @@ def main(app_config: AppConfig):
                 presence_client.clear(pid=app_config.discord_process_id)
             sleep(app_config.plex_poll_time)
         except StreamsNotFoundException as e:
-            print(f'No streams found, sleeping ten seconds {e}')
+            print(f'No streams found, sleeping {app_config.plex_poll_time} seconds {e}')
             presence_client.clear(app_config.discord_process_id)
             sleep(app_config.plex_poll_time)
         except InvalidStreamException as e:
-            print(f'Invalid stream found, sleeping sixty seconds {e}')
+            print(f'Invalid stream found, sleeping {app_config.plex_poll_time} seconds {e}')
+            sleep(app_config.plex_poll_time)
+        except ServerError as e:
+            print(f'Discord Authorization Error Caught, please check Discord configuration. '
+                  f'Sleeping {app_config.plex_poll_time} seconds {e}')
             sleep(app_config.plex_poll_time)
         except BaseException as e:
+            print(f'Fatal Exception Caught, exiting....')
             print(e)
             break
 
