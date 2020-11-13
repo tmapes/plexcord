@@ -4,7 +4,7 @@ import yaml
 from pypresence import Presence, InvalidPipe, ServerError
 
 from app_config import AppConfig
-from plex import PlexConnection, StreamsNotFoundException, InvalidStreamException
+from plex import PlexConnection, StreamsNotFoundException, InvalidStreamException, InvalidParameterException
 
 
 def main(app_config: AppConfig):
@@ -20,7 +20,7 @@ def main(app_config: AppConfig):
     while True:
         try:
             print('Getting New Stream Details')
-            stream_details = plex_client.get_plex_stream_details()
+            stream_details = plex_client.get_plex_stream_details(plex_username=app_config.plex_username)
             if stream_details:
                 if stream_details.is_tv_stream:
                     presence_client.update(
@@ -55,6 +55,10 @@ def main(app_config: AppConfig):
             print(f'Discord Authorization Error Caught, please check Discord configuration. '
                   f'Sleeping {app_config.plex_poll_time} seconds {e}')
             sleep(app_config.plex_poll_time)
+        except InvalidParameterException as e:
+            print('InvalidParameterException caught, check config | exiting..')
+            print(e)
+            break
         except BaseException as e:
             print(f'Fatal Exception Caught, exiting....')
             print(e)
@@ -70,6 +74,7 @@ if __name__ == '__main__':
             plex_server_address=raw_config.get("plex", {}).get("server_address", "http://localhost:32400"),
             plex_user_token=raw_config.get("plex", {}).get("user_token", "aabbccdd"),
             plex_poll_time=raw_config.get("plex", {}).get("poll_time", 60),
+            plex_username=raw_config.get("plex", {}).get("plex_username", ""),
             discord_client_id=raw_config.get("discord", {}).get("client_id", "aabbccdd"),
             discord_process_id=raw_config.get("discord", {}).get("process_id", 11223344),
         )

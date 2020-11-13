@@ -4,3 +4,7 @@ class StreamsNotFoundException(BaseException):
 
 class InvalidStreamException(BaseException):
     pass
+
+
+class InvalidParameterException(BaseException):
+    pass
