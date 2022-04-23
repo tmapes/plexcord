@@ -1,7 +1,4 @@
 plex:
-  server_address: "http://10.0.0.171:32400"
-  user_token: "123"
-  poll_time: 60 # Seconds to poll Plex for stream status
   plex_username: 'plex_username' # Username to pull active streams for
 discord:
   client_id: "123"
