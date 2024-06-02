@@ -1,3 +1,4 @@
+--index-url https://binrepo.mapes.info/repository/pypi/simple
 pypresence==4.3.0
-pyyaml==5.4.1
+PyYAML==6.0.1
 Flask==2.3.3
